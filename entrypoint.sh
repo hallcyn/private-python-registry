@@ -5,6 +5,16 @@ set -euo pipefail
 : "${DEVPI_SERVERDIR:=/data/server}"
 : "${DEVPI_SECRETFILE:=/data/.secret}"
 : "${DEVPI_RESTRICT_MODIFY:=root}"
+: "${DEVPI_TRUSTED_PROXY:=*}"
+: "${DEVPI_TRUSTED_PROXY_COUNT:=1}"
+: "${DEVPI_TRUSTED_PROXY_HEADERS:=x-forwarded-proto x-forwarded-for x-forwarded-host}"
+
+# On Railway, RAILWAY_PUBLIC_DOMAIN is injected automatically for services
+# with a public domain. Use it to set --outside-url so devpi-web generates
+# correct https:// links (no mixed-content) unless the user overrode it.
+if [ -z "${DEVPI_OUTSIDE_URL:-}" ] && [ -n "${RAILWAY_PUBLIC_DOMAIN:-}" ]; then
+    DEVPI_OUTSIDE_URL="https://${RAILWAY_PUBLIC_DOMAIN}"
+fi
 
 INIT_SENTINEL="/data/.initialized"
 
@@ -35,7 +45,15 @@ server_args=(
     --host 0.0.0.0
     --port "$PORT"
     --request-timeout 60
+    --trusted-proxy "$DEVPI_TRUSTED_PROXY"
+    --trusted-proxy-count "$DEVPI_TRUSTED_PROXY_COUNT"
+    --trusted-proxy-headers "$DEVPI_TRUSTED_PROXY_HEADERS"
 )
+
+if [ -n "${DEVPI_OUTSIDE_URL:-}" ]; then
+    echo "[entrypoint] outside URL: $DEVPI_OUTSIDE_URL"
+    server_args+=(--outside-url "$DEVPI_OUTSIDE_URL")
+fi
 
 if [ -n "$DEVPI_RESTRICT_MODIFY" ]; then
     server_args+=(--restrict-modify "$DEVPI_RESTRICT_MODIFY")

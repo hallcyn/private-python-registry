@@ -107,6 +107,10 @@ For CI, prefer a scoped token over a password: see [`devpi-tokens`](https://pypi
 | `DEVPI_SECRETFILE` | `/data/.secret` | Persistent server secret. Required so login tokens survive a redeploy. |
 | `DEVPI_RESTRICT_MODIFY` | `root` | Only `root` can create users/indexes. Set to an empty string to allow any logged-in user to create their own. |
 | `DEVPI_THEME_DIR` | `/app/theme` | Folder passed to devpi-server's `--theme`. Ships with a built-in modern theme (system fonts, dark mode). Point it at a folder under `/data` to use your own, or set to an empty string for the stock devpi look. |
+| `DEVPI_OUTSIDE_URL` | *(auto-detected)* | Full public URL of the service, used by devpi-web to build absolute links. On Railway it is auto-derived from `RAILWAY_PUBLIC_DOMAIN`. Set it explicitly only if you front the service with a custom domain or another proxy. |
+| `DEVPI_TRUSTED_PROXY` | `*` | Passed to `devpi-server --trusted-proxy`. `*` trusts any proxy — required so `X-Forwarded-Proto` from Railway's edge is honoured and links are generated as `https://` instead of `http://`. |
+| `DEVPI_TRUSTED_PROXY_COUNT` | `1` | Number of proxies in front of the service. |
+| `DEVPI_TRUSTED_PROXY_HEADERS` | `x-forwarded-proto x-forwarded-for x-forwarded-host` | Forwarded headers devpi-server will trust. |
 
 ## Persistence & the `/data` volume
 
