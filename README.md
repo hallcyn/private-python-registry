@@ -3,7 +3,7 @@
 **Deploy your own private PyPI-compatible package registry on Railway in under 2 minutes.**
 Based on [devpi](https://devpi.net), with persistent storage and full compatibility with `pip`, `uv`, and `twine`.
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/4_qIAt?referralCode=0fPTYP&utm_medium=integration&utm_source=template&utm_campaign=generic)
 
 ---
 
