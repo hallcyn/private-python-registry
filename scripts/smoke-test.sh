@@ -92,6 +92,21 @@ pre_clean
 docker volume create "$VOLUME_NAME" >/dev/null
 start_container
 
+# --- 3b. verify the custom theme CSS is actually served ------------------
+log "checking that the custom theme CSS is referenced and served"
+ROOT_HTML="$(curl -fsS "http://localhost:${HOST_PORT}/")"
+THEME_URL="$(printf '%s\n' "$ROOT_HTML" | grep -oE '\+theme-static-[^"]+style\.css' | head -1 || true)"
+if [ -z "$THEME_URL" ]; then
+    printf '%s\n' "$ROOT_HTML" | head -40
+    fail "root page does not reference a +theme-static-*/style.css link — --theme flag not picked up"
+fi
+THEME_CSS_STATUS="$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:${HOST_PORT}/${THEME_URL}")"
+if [ "$THEME_CSS_STATUS" != "200" ]; then
+    docker logs "$CONTAINER_NAME" | tail -40 || true
+    fail "theme CSS at /${THEME_URL} did not return 200 (got: $THEME_CSS_STATUS)"
+fi
+log "theme CSS served at /${THEME_URL}"
+
 # --- 4. create user + index, upload wheel --------------------------------
 log "configuring devpi client inside container"
 in_container devpi use "http://localhost:3141"

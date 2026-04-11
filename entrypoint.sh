@@ -41,5 +41,12 @@ if [ -n "$DEVPI_RESTRICT_MODIFY" ]; then
     server_args+=(--restrict-modify "$DEVPI_RESTRICT_MODIFY")
 fi
 
+if [ -n "${DEVPI_THEME_DIR:-}" ] && [ -d "$DEVPI_THEME_DIR" ]; then
+    echo "[entrypoint] using devpi-web theme at $DEVPI_THEME_DIR"
+    server_args+=(--theme "$DEVPI_THEME_DIR")
+elif [ -n "${DEVPI_THEME_DIR:-}" ]; then
+    echo "[entrypoint] warning: DEVPI_THEME_DIR=$DEVPI_THEME_DIR is set but not a directory, skipping theme"
+fi
+
 echo "[entrypoint] starting devpi-server on 0.0.0.0:$PORT"
 exec devpi-server "${server_args[@]}"

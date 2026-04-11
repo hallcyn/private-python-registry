@@ -30,6 +30,8 @@ Based on [devpi](https://devpi.net), with persistent storage and full compatibil
 
 ## Use it
 
+> **The web UI is browse-only.** devpi-web shows your indexes, packages, and search — but there's **no web login form**. All authenticated actions (logging in, creating users, creating indexes, uploading packages) go through the `devpi-client` CLI described below. This is by design in devpi.
+
 ### Configure the devpi client
 
 ```bash
@@ -40,14 +42,23 @@ devpi login root --password="$DEVPI_ROOT_PASSWORD"
 
 ### Create a user and a private index
 
+By default the server runs with `--restrict-modify root`, so only `root` can create users and indexes. While still logged in as `root`:
+
 ```bash
 devpi user -c alice password=s3cret email=alice@example.com
+devpi index -c alice/prod bases=root/pypi
+```
+
+Then switch to the new user to publish:
+
+```bash
 devpi login alice --password=s3cret
-devpi index -c prod bases=root/pypi
 devpi use alice/prod
 ```
 
 `bases=root/pypi` makes your index fall through to the on-demand PyPI mirror, so `pip install`ing a public dependency through your index Just Works.
+
+> Want any authenticated user to create their own indexes? Set the service variable `DEVPI_RESTRICT_MODIFY=""` and redeploy.
 
 ### Publish a package
 
@@ -95,6 +106,7 @@ For CI, prefer a scoped token over a password: see [`devpi-tokens`](https://pypi
 | `DEVPI_SERVERDIR` | `/data/server` | Where devpi stores packages, indexes, and metadata. Must be on the mounted volume. |
 | `DEVPI_SECRETFILE` | `/data/.secret` | Persistent server secret. Required so login tokens survive a redeploy. |
 | `DEVPI_RESTRICT_MODIFY` | `root` | Only `root` can create users/indexes. Set to an empty string to allow any logged-in user to create their own. |
+| `DEVPI_THEME_DIR` | `/app/theme` | Folder passed to devpi-server's `--theme`. Ships with a built-in modern theme (system fonts, dark mode). Point it at a folder under `/data` to use your own, or set to an empty string for the stock devpi look. |
 
 ## Persistence & the `/data` volume
 
