@@ -1,0 +1,16 @@
+.git
+.github
+.gitignore
+.dockerignore
+README.md
+CHANGELOG.md
+LICENSE
+scripts
+tests
+*.md
+!entrypoint.sh
+.DS_Store
+.idea
+.vscode
+__pycache__
+*.pyc
