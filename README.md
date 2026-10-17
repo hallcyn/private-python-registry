@@ -154,6 +154,24 @@ These are intentional trade-offs to keep the template simple and reliable. Fork 
 
 Builds the image, boots a throwaway container, exercises the full user/index/upload/install flow, then restarts the container on the same volume to verify persistence.
 
+## Versions and maintenance
+
+The three runtime dependencies are pinned explicitly in [requirements.txt](requirements.txt). As checked on 17 October 2026, these match the latest stable PyPI releases: **devpi-server 6.20.3**, **devpi-web 5.1.1**, and **devpi-client 7.3.0**. Python stays on the existing 3.12 base; the smoke test pulls the current image and checks the installed dependency graph before exercising the registry.
+
+[Check upstream versions](https://github.com/hallcyn/private-python-registry/actions/workflows/check-versions.yml) runs daily at **05:43 UTC**, after monitored files change on `main`, or manually via **Run workflow**. It checks published PyPI releases, ignores prereleases and yanked candidates, and flags a withdrawn installed pin or a Python compatibility change. Its unit tests also run on pull requests without permission to write issues.
+
+The workflow creates at most one open update issue per runtime dependency, refreshes it for newer releases, and closes it when the repository catches up. Closing as **not planned** suppresses that precise target version. Keep discussion in comments because the bot owns the issue body. An API failure fails the check and leaves issues untouched. GitHub may delay scheduled runs or disable them after 60 days without activity in a public repository; check the Actions tab if reminders stop.
+
+Updates and deployments stay manual. Change the relevant pins on a branch, read the upstream release notes, and require a successful container smoke test before merging. Back up the complete `/data` volume, including the server secret, before deploying an upgrade; follow any devpi storage migration instructions. The watcher checks repository pins, not the versions inside an already deployed Railway service or every transitive dependency. It does not change Railway configuration or stored packages.
+
+To run the watcher locally without creating issues:
+
+```bash
+python -m pip install 'packaging>=24,<27'
+python scripts/check_versions.py
+python -m unittest discover -s tests -p 'test_versions.py' -v
+```
+
 ## License
 
 MIT. See [LICENSE](./LICENSE).

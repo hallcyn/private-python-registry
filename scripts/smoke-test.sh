@@ -62,7 +62,7 @@ in_container() { docker exec "$CONTAINER_NAME" "$@"; }
 
 # --- 1. build image -------------------------------------------------------
 log "building image $IMAGE_TAG"
-docker build -t "$IMAGE_TAG" "$(dirname "$0")/.."
+docker build --pull -t "$IMAGE_TAG" "$(dirname "$0")/.."
 
 # --- 2. prepare a minimal package on the host ----------------------------
 log "preparing minimal package in $WORK_DIR"
@@ -91,6 +91,10 @@ EOF
 pre_clean
 docker volume create "$VOLUME_NAME" >/dev/null
 start_container
+
+log "checking installed runtime dependencies"
+in_container python -m pip check
+in_container python -c 'from importlib.metadata import version; print({name: version(name) for name in ("devpi-server", "devpi-web", "devpi-client")})'
 
 # --- 3b. verify the custom theme CSS is actually served ------------------
 log "checking that the custom theme CSS is referenced and served"
