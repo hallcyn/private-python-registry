@@ -1,0 +1,4 @@
+# Runtime versions validated by the container smoke test.
+devpi-server==6.20.3
+devpi-web==5.1.1
+devpi-client==7.3.0

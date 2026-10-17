@@ -12,10 +12,9 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends curl ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
-RUN pip install \
-      "devpi-server>=6.10,<7" \
-      "devpi-web>=5.0,<6" \
-      "devpi-client>=7.0,<8"
+COPY requirements.txt /app/requirements.txt
+RUN pip install --requirement /app/requirements.txt \
+ && pip check
 
 COPY theme /app/theme
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
